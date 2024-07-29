@@ -1,5 +1,6 @@
 const coffeeSupplyChainContract = artifacts.require("SupplyChainManagmentSmartContract.sol");
 
 module.exports = function (deployer) {
-  deployer.deploy(coffeeSupplyChainContract);
+  const version = 1; // Increment before deploy
+  deployer.deploy(coffeeSupplyChainContract, version);
 };

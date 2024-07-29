@@ -2,6 +2,13 @@
 pragma solidity ^0.8.0;
 
 contract SupplyChainManagmentSmartContract {
+    uint public contractVersion;
+    uint256 public productCount;
+
+    constructor(uint _contractVersion) {
+        contractVersion = _contractVersion;
+    }
+
     struct Product {
         uint256 id;
         string name;
@@ -59,7 +66,7 @@ contract SupplyChainManagmentSmartContract {
         uint256 _quantity,
         string memory _organicCertification,
         string memory _geolocation,
-        uint256 _harvestDate
+        uint256 harvestDate
     ) public returns (uint256) {
         products[productId] = Product({
             id: productId,
@@ -68,15 +75,24 @@ contract SupplyChainManagmentSmartContract {
             organicCertification: _organicCertification,
             geolocation: _geolocation,
             status: ProductStatus.InFarm,
-            harvestDate: _harvestDate
+            harvestDate: harvestDate
         });
 
         productId++;
+        productCount++;
         return productId - 1; // Return the product ID
     }
 
     function getProductById(uint256 _productId) public view returns (Product memory) {
         return products[_productId];
+    }
+
+    function getProducts() public view returns (Product[] memory) {
+        Product[] memory allProducts = new Product[](productCount);
+        for (uint256 i = 0; i < productCount; i++) {
+            allProducts[i] = products[i];
+        }
+        return allProducts;
     }
 
     uint256 public transactionId = 0;
@@ -122,7 +138,7 @@ contract SupplyChainManagmentSmartContract {
             beanSize: _beanSize
         });
 
-        productQualityChecks[_productId].push(newCheck);
+        productQualityChecks[productId].push(newCheck);
     }
 
     struct Escrow {
@@ -135,13 +151,13 @@ contract SupplyChainManagmentSmartContract {
     mapping(uint256 => Escrow) public escrows;
     uint256 public escrowId = 0;
 
-    function createEscrow(address _buyer, uint256 _amount) public payable returns (uint256) {
-        require(msg.value == _amount, "Insufficient funds");
+    function createEscrow(address buyer, uint256 amount) public payable returns (uint256) {
+        require(msg.value == amount, "Insufficient funds");
 
         Escrow memory newEscrow = Escrow({
-            buyer: _buyer,
+            buyer: buyer,
             seller: msg.sender,
-            amount: _amount,
+            amount: amount,
             isReleased: false
         });
 
